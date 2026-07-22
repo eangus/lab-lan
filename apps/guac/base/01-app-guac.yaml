@@ -1,0 +1,27 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: guac
+  namespace: argocd
+spec:
+  destination:
+    namespace: guac
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      recurse: true
+    path: ./apps/guac
+    repoURL: https://github.com/eangus/lab-lan.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - Validate=true
+      - ApplyOutOfSyncOnly=true
+      - CreateNamespace=true
