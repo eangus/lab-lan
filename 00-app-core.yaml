@@ -1,0 +1,26 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: core
+  namespace: argocd
+spec:
+  destination:
+    namespace: core
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      recurse: true
+    path: ./bootstrap/overlays/default
+    repoURL: https://github.com/eangus/lab-lan.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      enabled: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - Validate=false
+      - ApplyOutOfSyncOnly=true
+      - CreateNamespace=true
