@@ -1,0 +1,4 @@
+---
+bases:
+  - gitops-controller
+  - kubevirt

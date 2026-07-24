@@ -494,16 +494,3 @@ spec:
     developerConfiguration: 
       featureGates:
         - HostDisk
----
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
-metadata:
-  name: traefik
-  namespace: kube-system
-spec:
-  valuesContent: |-
-    providers:
-      kubernetesCRD:
-        allowCrossNamespace: true
-      kubernetesGateway:
-        enabled: true
