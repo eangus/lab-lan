@@ -34,3 +34,8 @@ metadata:
 spec:
   server:
     insecure: true
+    route:
+      enabled: true
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect

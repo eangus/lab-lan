@@ -6,6 +6,7 @@ metadata:
   namespace: guacd
   labels:
     app: guacd
+    app.kubernetes.io/managed-by: argocd
 spec:
   selector:
     matchLabels:
