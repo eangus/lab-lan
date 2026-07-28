@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guacd
+  namespace: guacd
+  labels:
+    app: guacd
+spec:
+  selector:
+    matchLabels:
+      app: guacd
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: guacd
+    spec:
+      containers:
+        - name: guacd
+          image: oznu/guacamole
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TZ
+              value: America/Chicago
+          #        - name: EXTENSIONS
+          #          value: auth-totp
+          securityContext:
+            capabilities:
+              add:
+                - SYS_NICE
+          volumeMounts:
+            - mountPath: /config
+              name: guac-data0
+      volumes:
+        - name: guac-data0
+          persistentVolumeClaim:
+            claimName: guac-data0

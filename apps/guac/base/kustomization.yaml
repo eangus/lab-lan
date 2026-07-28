@@ -1,3 +1,7 @@
 ---
 resources:
   - "01-app-guac.yaml"
+  - "01-pvc-guac.yaml"
+  - "02-deploy-guac.yaml"
+  - "03-svc-guac.yaml"
+  - "04-isrt-guac.yaml"
