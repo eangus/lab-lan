@@ -39,3 +39,7 @@ spec:
       tls:
         termination: edge
         insecureEdgeTerminationPolicy: Redirect
+  aggregatedClusterRoles: true
+  namespaceManagement:
+    - allowManagedBy: true
+      name: "*"
