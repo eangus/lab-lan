@@ -1,4 +1,4 @@
 ---
 resources:
-  - argocd-helm.yaml
+  - argocd-olm.yaml
   - traefik.yaml

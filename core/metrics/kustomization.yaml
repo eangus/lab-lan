@@ -1,0 +1,4 @@
+---
+resources:
+  - prometheus-olm.yaml
+  - prometheus-ingressroute.yaml

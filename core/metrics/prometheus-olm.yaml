@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+
+# ---
+# apiVersion: operators.coreos.com/v1alpha1
+# kind: CatalogSource
+# metadata:
+#   name: prometheus-catalog
+#   namespace: olm
+# spec:
+#   sourceType: grpc
+#   image: quay.io/argoprojlabs/prometheus-operator-registry@sha256:8be13818ef5d00e4bbf99d488fe23fd1a020e3747ec16391cf9f1cb592551ab1 # replace with your index image
+#   displayName: Argo CD Operators
+#   publisher: Argo CD Community
+
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: prometheus
+  namespace: prometheus
+
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  channel: beta
+  name: prometheus
+  source: operatorhubio-catalog
+  sourceNamespace: olm
