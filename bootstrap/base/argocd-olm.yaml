@@ -20,6 +20,10 @@ metadata:
   name: argocd-operator
   namespace: argocd
 spec:
+  config:
+    env: 
+    - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+      value: '*'
   channel: alpha
   name: argocd-operator
   source: operator-catalog
@@ -39,7 +43,4 @@ spec:
       tls:
         termination: edge
         insecureEdgeTerminationPolicy: Redirect
-  aggregatedClusterRoles: true
-  namespaceManagement:
-    - allowManagedBy: true
-      name: "*"
+  defaultClusterScopedRoleDisabled: false
