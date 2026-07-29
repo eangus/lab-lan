@@ -440,57 +440,72 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: kubevirt-manager
   namespace: kubevirt-manager
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  rules:
-  - host: kvm.apps.lab.lan
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: kubevirt-manager
-            port:
-              number: 8080
-      - path: /ws
-        pathType: Prefix
-        backend:
-          service:
-            name: kubevirt-manager
-            port:
-              number: 8080
----
-apiVersion: cdi.kubevirt.io/v1beta1
-kind: StorageProfile
-metadata:
-  labels:
-    app: containerized-data-importer
-    app.kubernetes.io/component: storage
-    app.kubernetes.io/managed-by: cdi-controller
-    cdi.kubevirt.io: ""
-  name: local-path
-spec:
-  claimPropertySets:
-  - accessModes:
-    - ReadWriteOnce
-    volumeMode: Filesystem
----
-apiVersion: kubevirt.io/v1
-kind: KubeVirt
-metadata:
-  name: kubevirt
-  namespace: kubevirt
-spec:
-  configuration:
-    developerConfiguration: 
-      featureGates:
-        - HostDisk
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`kvm.apps.lab.lan`)
+      priority: 10
+      services:
+        - name: kubevirt-manager
+          port: 8080
+    - kind: Rule
+      # Route gRPC traffic based on content-type header
+      match: Host(`kvm.apps.lab.lan`) && PathPrefix(`/ws`)
+      priority: 11
+      services:
+        - name: argocd-server
+          port: 8080
+    #       scheme: h2c
+
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: kubevirt-manager
+#   namespace: kubevirt-manager
+#   annotations:
+#     traefik.ingress.kubernetes.io/router.entrypoints: websecure
+#     traefik.ingress.kubernetes.io/router.tls: "true"
+# spec:
+#   rules:
+#   - host: kvm.apps.lab.lan
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: kubevirt-manager
+#             port:
+#               number: 8080
+#       - path: /ws
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: 
+#             port:
+#               number: 8080
+# ---
+# apiVersion: cdi.kubevirt.io/v1beta1
+# kind: StorageProfile
+# metadata:
+#   labels:
+#     app: containerized-data-importer
+#     app.kubernetes.io/component: storage
+#     app.kubernetes.io/managed-by: cdi-controller
+#     cdi.kubevirt.io: ""
+#   name: local-path
+# spec:
+#   claimPropertySets:
+#   - accessModes:
+#     - ReadWriteOnce
+#     volumeMode: Filesystem

@@ -1,3 +1,4 @@
 ---
 resources:
+  - argocd-olm.yaml
   - argocd-ingressroute.yaml

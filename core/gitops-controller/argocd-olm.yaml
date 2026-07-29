@@ -26,7 +26,7 @@ spec:
       value: '*'
   channel: alpha
   name: argocd-operator
-  source: operator-catalog
+  source: operatorhubio-catalog
   sourceNamespace: olm
 
 ---

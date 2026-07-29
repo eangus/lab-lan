@@ -1,4 +1,3 @@
 ---
 resources:
-  - argocd-olm.yaml
   - traefik.yaml
