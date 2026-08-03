@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: guacd
-          image: quay.io/eangus/guac:latest
+          image: quay.io/eangus/guac
           ports:
             - containerPort: 8080
           env:
