@@ -36,6 +36,9 @@ spec:
           volumeMounts:
             - mountPath: /config
               name: guac-data0
+      imagePullSecrets:
+        - name: quay-pull-secret
+
       volumes:
         - name: guac-data0
           persistentVolumeClaim:
