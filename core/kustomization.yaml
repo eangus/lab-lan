@@ -1,5 +1,7 @@
 ---
-bases:
+resources:
   - gitops-controller
   - kubevirt
   - metrics
+  - idm
+  - database

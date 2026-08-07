@@ -2,38 +2,63 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: kubevirt
+  name: kubevirt-hyperconverged
   labels:
-    app: kubevirt
+    app: kubevirt-hyperconverged
 
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
   name: community-kubevirt-hyperconverged
-  namespace: kubevirt
+  namespace: kubevirt-hyperconverged
 
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: community-kubevirt-hyperconverged
-  namespace: kubevirt
+  namespace: kubevirt-hyperconverged
 spec:
   channel: stable
   name: community-kubevirt-hyperconverged
   source: operatorhubio-catalog
   sourceNamespace: olm
 
+# ---
+# apiVersion: kubevirt.io/v1
+# kind: KubeVirt
+# metadata:
+#   name: kubevirt
+#   namespace: kubevirt-hyperconverged
+# spec:
+#   configuration:
+#     developerConfiguration:
+#       featureGates:
+#         - HostDisk
 ---
-apiVersion: kubevirt.io/v1
-kind: KubeVirt
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
 metadata:
-  name: kubevirt
-  namespace: kubevirt
+  name: kubevirt-hyperconverged
+  namespace: kubevirt-hyperconverged 
+spec: {} 
+---
+apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
+kind: HostPathProvisioner
+metadata:
+  name: hostpath-provisioner
 spec:
-  configuration:
-    developerConfiguration:
-      featureGates:
-        - HostDisk
   imagePullPolicy: IfNotPresent
+  storagePools:
+    - name: local
+      path: /var/hpvolumes
+      pvcTemplate:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+  workload:
+    nodeSelector:
+      kubernetes.io/os: linux

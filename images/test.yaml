@@ -2,25 +2,24 @@
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: bastion
+  name: testvm
 spec:
-  runStrategy: Always
+  runStrategy: Halted
   template:
     metadata:
       labels:
         kubevirt.io/size: small
-        kubevirt.io/domain: bastion
+        kubevirt.io/domain: testvm
     spec:
       domain:
         devices:
           disks:
-            - disk:
+            - name: containerdisk
+              disk:
                 bus: virtio
-              name: containerdisk
-            - disk:
+            - name: cloudinitdisk
+              disk:
                 bus: virtio
-              name: cloudinitdisk
-          rng: {}
           interfaces:
             - name: default
               masquerade: {}
@@ -28,7 +27,6 @@ spec:
           requests:
             memory: 1Gi
             cpu: "1"
-      terminationGracePeriodSeconds: 0
       accessCredentials:
         - sshPublicKey:
             source:
@@ -44,18 +42,12 @@ spec:
       volumes:
         - name: containerdisk
           containerDisk:
-            image: quay.io/containerdisks/fedora:44
+            image: quay.io/containerdisks/ubuntu:26.04
         - name: cloudinitdisk
           cloudInitNoCloud:
-            userData: |-
+            userData: |
               #cloud-config
               user: evan
               password: bastion
               chpasswd: { expire: False }
-              # Disable SELinux for now, so qemu-guest-agent can write the authorized_keys file
-              # The selinux-policy is too restrictive currently, see open bugs:
-              #   - https://bugzilla.redhat.com/show_bug.cgi?id=1917024
-              #   - https://bugzilla.redhat.com/show_bug.cgi?id=2028762
-              #   - https://bugzilla.redhat.com/show_bug.cgi?id=2057310
-              bootcmd:
-                - setenforce 0
+              ssh_pwauth: True

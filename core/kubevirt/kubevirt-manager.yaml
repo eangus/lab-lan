@@ -433,7 +433,7 @@ metadata:
     app: kubevirt-manager
     kubevirt-manager.io/version: nightly
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: kubevirt-manager
   ports:

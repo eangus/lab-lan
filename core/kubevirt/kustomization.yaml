@@ -3,4 +3,3 @@ resources:
   - kubevirt-hci-olm.yaml
   - kubevirt-manager.yaml
   - my-pub-key.yaml
-  - vm-bastion.yaml

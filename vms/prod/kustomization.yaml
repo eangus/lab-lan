@@ -1,3 +1,4 @@
 ---
 resources:
   - vm-bastion.yaml
+  - vm-dbsvr.yaml
