@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: deluge-config-pvc
+  namespace: mediahub
+  labels:
+    app: deluge
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deluge
+  namespace: mediahub
+  labels:
+    app: deluge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deluge
+  template:
+    metadata:
+      labels:
+        app: deluge
+    spec:
+      securityContext:
+        fsGroup: 1000
+        # Only change ownership if current permissions are wrong
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: deluge
+          image: lscr.io/linuxserver/deluge:latest
+          env:
+            - name: TZ
+              value: "Etc/UTC"
+          ports:
+            - containerPort: 8112
+              name: webui
+            - containerPort: 6881
+              name: torrent-tcp
+            - containerPort: 6881
+              protocol: UDP
+              name: torrent-udp
+            - containerPort: 58846
+              name: daemon
+          volumeMounts:
+            - mountPath: /config
+              name: config-vol
+            - mountPath: /downloads
+              name: downloads-vol
+      volumes:
+        - name: config-vol
+          persistentVolumeClaim:
+            claimName: deluge-config-pvc
+        - name: downloads-vol
+          persistentVolumeClaim:
+            claimName: media-stage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deluge-svc
+  namespace: mediahub
+spec:
+  type: ClusterIP
+  selector:
+    app: deluge
+  ports:
+    - name: webui
+      port: 8112
+      targetPort: 8112
+    - name: daemon
+      port: 58846
+      targetPort: 58846
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: deluge
+  namespace: mediahub
+  labels:
+    app: deluge
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`deluge.apps.lab.lan`)
+      kind: Rule
+      services:
+        - name: deluge-svc
+          port: 8112

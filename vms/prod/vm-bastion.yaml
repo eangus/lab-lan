@@ -26,8 +26,8 @@ spec:
               masquerade: {}
         resources:
           requests:
-            memory: 1Gi
-            cpu: "1"
+            memory: 4Gi
+            cpu: "2"
       terminationGracePeriodSeconds: 0
       accessCredentials:
         - sshPublicKey:
@@ -44,7 +44,7 @@ spec:
       volumes:
         - name: containerdisk
           containerDisk:
-            image: quay.io/containerdisks/fedora:44
+            image: quay.io/containerdisks/centos-stream:9
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |-

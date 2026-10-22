@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seerr-config
+  namespace: mediahub
+  labels:
+    app: seerr
+    app.kubernetes.io/managed-by: argocd
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seerr
+  namespace: mediahub
+  labels:
+    app: seerr
+    app.kubernetes.io/managed-by: argocd
+spec:
+  selector:
+    matchLabels:
+      app: seerr
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: seerr
+    spec:
+      securityContext:
+        fsGroup: 1000
+        # Only change ownership if current permissions are wrong
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: seerr
+          image: ghcr.io/seerr-team/seerr:latest
+          ports:
+            - containerPort: 5055
+          env:
+            - name: TZ
+              value: America/Chicago
+            - name: PORT
+              value: "5055"
+          securityContext:
+            capabilities:
+              add:
+                - SYS_NICE
+          volumeMounts:
+            - mountPath: /app/config
+              name: seerr-config
+            - mountPath: /data/tv
+              name: media-tv
+            - mountPath: /data/movies
+              name: media-movies
+      imagePullSecrets:
+        - name: quay-pull-secret
+
+      volumes:
+        - name: seerr-config
+          persistentVolumeClaim:
+            claimName: seerr-config
+        - name: media-tv
+          persistentVolumeClaim:
+            claimName: media-tv
+        - name: media-movies
+          persistentVolumeClaim:
+            claimName: media-movies
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seerr
+  namespace: mediahub
+  labels:
+    app: seerr
+    app.kubernetes.io/managed-by: argocd
+spec:
+  ports:
+    - name: seerr-port
+      port: 5055
+  selector:
+    app: seerr
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: seerr
+  namespace: mediahub
+  labels:
+    app: seerr
+    app.kubernetes.io/managed-by: argocd
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`seerr.apps.lab.lan`)
+      kind: Rule
+      services:
+        - name: seerr
+          port: 5055

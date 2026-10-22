@@ -1,7 +1,8 @@
 ---
 resources:
-  - gitops-controller
+  # - gitops-controller
   - kubevirt
-  - metrics
-  - idm
-  - database
+  - storage
+  # - metrics
+  # - idm
+  # - database

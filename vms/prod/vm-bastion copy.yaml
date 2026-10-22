@@ -1,0 +1,86 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: ubuntu
+spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: containerdisk
+      spec:
+        source:
+          registry:
+            url: docker://quay.io/containerdisks/ubuntu:26.04
+        storage:
+          resources:
+            requests:
+              storage: 20Gi
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        kubevirt.io/size: small
+        kubevirt.io/domain: ubuntu
+    spec:
+      domain:
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: containerdisk
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+          rng: {}
+          interfaces:
+            - name: default
+              masquerade: {}
+        resources:
+          requests:
+            memory: 4Gi
+            cpu: "2"
+      terminationGracePeriodSeconds: 0
+      accessCredentials:
+        - sshPublicKey:
+            source:
+              secret:
+                secretName: my-pub-key
+            propagationMethod:
+              qemuGuestAgent:
+                users:
+                  - evan
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: containerdisk
+          dataVolume:
+            name: containerdisk
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              user: evan
+              password: ubuntu
+              # 1. Update the repository cache (runs 'apt-get update')
+              package_update: true
+
+              # 2. (Optional) Upgrade all existing packages to their latest versions
+              package_upgrade: false
+
+              # 3. List the software packages you want to install
+              packages:
+                - docker
+                - git
+                - docker-compose-v2
+                - vim
+              chpasswd: { expire: False }
+              # Disable SELinux for now, so qemu-guest-agent can write the authorized_keys file
+              # The selinux-policy is too restrictive currently, see open bugs:
+              #   - https://bugzilla.redhat.com/show_bug.cgi?id=1917024
+              #   - https://bugzilla.redhat.com/show_bug.cgi?id=2028762
+              #   - https://bugzilla.redhat.com/show_bug.cgi?id=2057310
+              bootcmd:
+                - setenforce 0
+              ssh_authorized_keys:
+                - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC8/xEFali08bXAP3uyO5QVJ+dlbbaTShEqcFuZr2SNCmLM5QNwVjsLoZGBVQhs5p9jvGVyVcGoNjp+m5hT15u8TrJQweWtroL5kDKZiiRqZBV6nAAj4HdORKSurgLfromO2DAc4OeGhvu+hYmNU6SzmtWmzjTvxRdD+MI+2IVZSAv0HUwOQLEiXw+SiSHVsl8xKdghSB//QfKpsnuBYizrML08HaBImOZl2oFmQVnDz76yNBYlrrkmZBDV67NNS82n1Ide1T9tYcnd5GXqK+cpN7Spng5UYFRqImIfZZQbd5MX2W+EjCYNzNf/7gynsKseX5LY1HzByYmVLZhZK5b9fK3wwmUNE9frA01O2WY2iBpbOk5jgildyNncGQC4yXE8HbCGApVpGWZTNpgX7Q/LC2GBJSgutTPTMJmtZLC++usYrMEWba2HlxAMBzO0XJd8xIGh6IqXikRNgy/68OneqKKFEvBxI+sarHNyhwgqrdf5pjY8qHUHZFTnQAqPrrc= root@aries

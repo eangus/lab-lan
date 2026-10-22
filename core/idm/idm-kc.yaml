@@ -1,0 +1,42 @@
+---
+apiVersion: k8s.keycloak.org/v2beta1
+kind: Keycloak
+metadata:
+  name: lab-kc
+  namespace: keycloak
+spec:
+  instances: 1
+  db:
+    vendor: postgres
+    host: postgres-db
+    usernameSecret:
+      name: keycloak-db-secret
+      key: username
+    passwordSecret:
+      name: keycloak-db-secret
+      key: password
+  http:
+    httpEnabled: true
+  ingress:
+    enabled: true
+  hostname:
+    hostname: idm.apps.lab.lan
+  proxy:
+    headers: xforwarded
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: lab-kc-service
+  namespace: keycloak
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`idm.apps.lab.lan`)
+      priority: 10
+      services:
+        - name: lab-kc-service
+          port: 8080

@@ -1,0 +1,4 @@
+---
+resources:
+  - longhorn-helm.yaml
+  - ingress-route.yaml
