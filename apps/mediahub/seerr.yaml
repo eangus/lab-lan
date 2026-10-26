@@ -55,10 +55,10 @@ spec:
           volumeMounts:
             - mountPath: /app/config
               name: seerr-config
-            - mountPath: /data/tv
-              name: media-tv
-            - mountPath: /data/movies
-              name: media-movies
+            # - mountPath: /data/tv
+            #   name: media-tv
+            # - mountPath: /data/movies
+            #   name: media-movies
       imagePullSecrets:
         - name: quay-pull-secret
 
@@ -66,12 +66,12 @@ spec:
         - name: seerr-config
           persistentVolumeClaim:
             claimName: seerr-config
-        - name: media-tv
-          persistentVolumeClaim:
-            claimName: media-tv
-        - name: media-movies
-          persistentVolumeClaim:
-            claimName: media-movies
+        # - name: media-tv
+        #   persistentVolumeClaim:
+        #     claimName: media-tv
+        # - name: media-movies
+        #   persistentVolumeClaim:
+        #     claimName: media-movies
 
 ---
 apiVersion: v1
@@ -102,6 +102,24 @@ spec:
     - websecure
   routes:
     - match: Host(`seerr.apps.lab.lan`)
+      kind: Rule
+      services:
+        - name: seerr
+          port: 5055
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: seerr-http
+  namespace: mediahub
+  labels:
+    app: seerr
+    app.kubernetes.io/managed-by: argocd
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`seerr-http.apps.lab.lan`)
       kind: Rule
       services:
         - name: seerr

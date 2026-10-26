@@ -1,101 +1,101 @@
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: plex-config
-  namespace: mediahub
-  labels:
-    app: plex
-    app.kubernetes.io/managed-by: argocd
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 3Gi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: plex
-  namespace: mediahub
-  labels:
-    app: plex
-    app.kubernetes.io/managed-by: argocd
-spec:
-  selector:
-    matchLabels:
-      app: plex
-  replicas: 1
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: plex
-    spec:
-      containers:
-        - name: plex
-          image: lscr.io/linuxserver/plex:latest
-          ports:
-            - containerPort: 32400
-          env:
-            - name: TZ
-              value: America/Chicago
-          securityContext:
-            capabilities:
-              add:
-                - SYS_NICE
-          volumeMounts:
-            - mountPath: /config
-              name: plex-config
-            - mountPath: /movies
-              name: media-movies
-            - mountPath: /tv
-              name: media-tv
-      imagePullSecrets:
-        - name: quay-pull-secret
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: plex-config
+#   namespace: mediahub
+#   labels:
+#     app: plex
+#     app.kubernetes.io/managed-by: argocd
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 3Gi
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: plex
+#   namespace: mediahub
+#   labels:
+#     app: plex
+#     app.kubernetes.io/managed-by: argocd
+# spec:
+#   selector:
+#     matchLabels:
+#       app: plex
+#   replicas: 1
+#   strategy:
+#     type: Recreate
+#   template:
+#     metadata:
+#       labels:
+#         app: plex
+#     spec:
+#       containers:
+#         - name: plex
+#           image: lscr.io/linuxserver/plex:latest
+#           ports:
+#             - containerPort: 32400
+#           env:
+#             - name: TZ
+#               value: America/Chicago
+#           securityContext:
+#             capabilities:
+#               add:
+#                 - SYS_NICE
+#           volumeMounts:
+#             - mountPath: /config
+#               name: plex-config
+#             - mountPath: /movies
+#               name: media-movies
+#             - mountPath: /tv
+#               name: media-tv
+#       imagePullSecrets:
+#         - name: quay-pull-secret
 
-      volumes:
-        - name: plex-config
-          persistentVolumeClaim:
-            claimName: plex-config
-        - name: media-movies
-          persistentVolumeClaim:
-            claimName: media-movies
-        - name: media-tv
-          persistentVolumeClaim:
-            claimName: media-tv
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: plex
-  namespace: mediahub
-  labels:
-    app: plex
-    app.kubernetes.io/managed-by: argocd
-spec:
-  ports:
-    - name: plex-port
-      port: 32400
-  selector:
-    app: plex
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: plex
-  namespace: mediahub
-  labels:
-    app: plex
-    app.kubernetes.io/managed-by: argocd
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`plex.apps.lab.lan`)
-      kind: Rule
-      services:
-        - name: plex
-          port: 32400
+#       volumes:
+#         - name: plex-config
+#           persistentVolumeClaim:
+#             claimName: plex-config
+#         - name: media-movies
+#           persistentVolumeClaim:
+#             claimName: media-movies
+#         - name: media-tv
+#           persistentVolumeClaim:
+#             claimName: media-tv
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: plex
+#   namespace: mediahub
+#   labels:
+#     app: plex
+#     app.kubernetes.io/managed-by: argocd
+# spec:
+#   ports:
+#     - name: plex-port
+#       port: 32400
+#   selector:
+#     app: plex
+# ---
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: plex
+#   namespace: mediahub
+#   labels:
+#     app: plex
+#     app.kubernetes.io/managed-by: argocd
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - match: Host(`plex.apps.lab.lan`)
+#       kind: Rule
+#       services:
+#         - name: plex
+#           port: 32400
