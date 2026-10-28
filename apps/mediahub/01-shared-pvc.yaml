@@ -5,14 +5,14 @@ metadata:
   name: media-tv
   namespace: mediahub
   labels:
-    app: plex
+    app: mediahub
     app.kubernetes.io/managed-by: argocd
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 40Gi
+      storage: 30Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -20,14 +20,14 @@ metadata:
   name: media-movies
   namespace: mediahub
   labels:
-    app: plex
+    app: mediahub
     app.kubernetes.io/managed-by: argocd
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 40Gi
+      storage: 50Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -35,7 +35,7 @@ metadata:
   name: media-stage
   namespace: mediahub
   labels:
-    app: plex
+    app: mediahub
 spec:
   accessModes:
     - ReadWriteMany
