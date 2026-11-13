@@ -41,8 +41,9 @@ apiVersion: hco.kubevirt.io/v1beta1
 kind: HyperConverged
 metadata:
   name: kubevirt-hyperconverged
-  namespace: kubevirt-hyperconverged 
-spec: {} 
+  namespace: kubevirt-hyperconverged
+spec: {}
+
 ---
 apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
 kind: HostPathProvisioner
@@ -58,7 +59,8 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 50Gi
+            storage: 500Gi
   workload:
     nodeSelector:
       kubernetes.io/os: linux
+

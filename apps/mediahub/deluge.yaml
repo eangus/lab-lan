@@ -60,6 +60,16 @@ spec:
         - name: config-vol
           persistentVolumeClaim:
             claimName: deluge-config-pvc
+        # - name: configs
+        #   configMap:
+        #     name: deluge-configs
+        #     items:
+        #       - key: web-conf
+        #         path: web.conf
+        #       - key: extractor-conf
+        #         path: extractor.conf
+        #       - key: core-conf
+        #         path: core.conf
         - name: downloads-vol
           persistentVolumeClaim:
             claimName: media-stage
