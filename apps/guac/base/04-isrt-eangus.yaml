@@ -12,9 +12,9 @@ metadata:
 #   traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   entryPoints:
-    - websecure
+    - web
   routes:
-    - match: Host(`guac.apps.lab.lan`)
+    - match: Host(`guac-http.apps.lab.lan`)
       kind: Rule
       services:
         - name: guacd
